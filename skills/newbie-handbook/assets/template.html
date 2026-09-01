@@ -1,0 +1,188 @@
+<meta charset="utf-8">
+<title>新手手冊 · 模板</title>
+<!--
+  ┌───────────────────────────────────────────────────────────────────┐
+  │ newbie-handbook-neutral 模板（米白+橘 · A4 直式 · 圖文並茂）         │
+  │ 用法：把每個 <section class="page"> 的內容換成你的主題。             │
+  │  - 步驟頁：複製「STEP 範本」那一頁，改編號與內容即可。               │
+  │  - 圖示意：一律用下方「視窗 / 卡片」CSS 元件畫 mock，不要用假截圖。   │
+  │  - 封面／結尾：不放署名、社群帳號、QR code 或導流 CTA。             │
+  │ 渲染：node assets/render.mjs <這個檔> "<輸出檔名>.pdf"               │
+  └───────────────────────────────────────────────────────────────────┘
+-->
+<style>
+  :root{
+    --bg:#FAF9F5;          /* 中立米白 */
+    --bg-warm:#F3ECE0;     /* 溫暖底 */
+    --card:#FFFDF8;        /* 卡片白 */
+    --orange:#D97757;      /* Claude 橘 */
+    --orange-deep:#BE5C39; /* 深橘 */
+    --orange-soft:#F8E6DA; /* 淺橘底 */
+    --orange-tint:#FBEFE7;
+    --ink:#26241F;         /* 主文字 */
+    --ink-soft:#4C483F;    /* 次文字 */
+    --muted:#8B857A;       /* 淡文字 */
+    --line:#E7DECF;        /* 分隔線 */
+    --line-strong:#DBCFB9;
+    --green:#5E8B6A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{background:#d9d3c7;font-family:"PingFang TC","Heiti TC","Microsoft JhengHei",sans-serif;color:var(--ink);line-height:1.62;font-size:14px}
+  .serif{font-family:"Georgia","Times New Roman","Songti TC",serif}
+
+  /* A4 page */
+  .page{width:210mm;height:297mm;background:var(--bg);margin:0 auto;position:relative;overflow:hidden;padding:19mm 18mm 16mm;display:flex;flex-direction:column}
+  @media screen{ .page{margin:14px auto;box-shadow:0 8px 34px rgba(0,0,0,.18)} }
+  @media print{ @page{size:A4;margin:0} body{background:#fff} .page{margin:0;box-shadow:none;page-break-after:always} .page:last-child{page-break-after:auto} }
+
+  /* shared */
+  .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--orange-deep);font-weight:700}
+  .pg-foot{position:absolute;left:18mm;right:18mm;bottom:9mm;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:7px;letter-spacing:.02em}
+  .pg-foot b{color:var(--orange-deep);font-weight:700}
+  h2.title{font-size:30px;line-height:1.18;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+  h2.title .em{color:var(--orange-deep)}
+  p.lead{font-size:15px;color:var(--ink-soft);line-height:1.75}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--orange-soft);color:var(--orange-deep);font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:.02em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+  .card.warm{background:var(--bg-warm);border-color:var(--line-strong)}
+  .card.tint{background:var(--orange-tint);border-color:#F0D8C8}
+  .tag{display:inline-block;background:var(--ink);color:#F6EFE1;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:6px;letter-spacing:.05em}
+  code.inline{font-family:"SF Mono","Menlo",monospace;font-size:12px;background:#efe7d7;color:var(--orange-deep);padding:1.5px 7px;border-radius:6px;border:1px solid #e4d8c2;white-space:nowrap}
+  /* 視窗 mock（終端機 / App / 瀏覽器 / Finder 共用）*/
+  .win{border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.12);box-shadow:0 10px 24px rgba(60,40,20,.12)}
+  .win-bar{background:#e9e2d5;padding:8px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #dccfb8}
+  .win-bar .dot{width:11px;height:11px;border-radius:50%}
+  .win-bar .r{background:#EC6A5E}.win-bar .y{background:#F4BF4F}.win-bar .g{background:#61C554}
+  .win-bar .ttl{margin-left:8px;font-size:11px;color:#8a8170;font-weight:600}
+  .term{background:#2B2822;color:#F1E9DA;font-family:"SF Mono","Menlo",monospace;font-size:11.5px;line-height:1.85;padding:14px 16px}
+  .term .p{color:#E0A46B}.term .c{color:#8FB98A}.term .dim{color:#9b917f}
+  /* 步驟編號 */
+  .stepnum{width:44px;height:44px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;flex:0 0 auto;box-shadow:0 4px 10px rgba(217,119,87,.4)}
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:9px}
+  ul.clean li{position:relative;padding-left:24px;font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+  ul.clean li::before{content:"";position:absolute;left:4px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
+  .divider{height:1px;background:var(--line);margin:16px 0}
+</style>
+
+<!-- ========================= 1 · 封面 ========================= -->
+<section class="page" style="padding:0;justify-content:flex-start">
+  <div style="height:12mm;background:var(--orange)"></div>
+  <div style="flex:1;padding:20mm 20mm 0;display:flex;flex-direction:column">
+    <div class="kicker">【副標籤 · 給誰看】</div>
+    <div style="margin-top:26mm">
+      <div class="serif" style="font-size:16px;color:var(--orange-deep);letter-spacing:.04em">從零開始 · 一步一步</div>
+      <h1 style="font-size:56px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:10px;color:var(--ink)">
+        【主標題】<br><span style="color:var(--orange-deep)">【重點詞】</span>
+      </h1>
+      <p style="font-size:18px;color:var(--ink-soft);margin-top:20px;line-height:1.7;max-width:150mm">
+        【一句話說明：這本手冊帶讀者到哪裡、為什麼不難】
+      </p>
+    </div>
+    <div style="margin-top:auto;margin-bottom:16mm">
+      <!-- 可放一個示意 mock（見下方元件），或留白 -->
+    </div>
+  </div>
+  <div style="padding:0 20mm 14mm;display:flex;justify-content:flex-start;align-items:flex-end">
+    <div style="font-size:12.5px;color:var(--muted)">圖文新手手冊 · 可邊看邊操作</div>
+  </div>
+</section>
+
+<!-- ========================= 2 · 這是什麼 / 總覽 ========================= -->
+<section class="page">
+  <div class="kicker">先搞懂 · 這到底是什麼</div>
+  <h2 class="title" style="margin-top:12px">【一句話定義】<span class="em">【重點】</span></h2>
+  <p class="lead" style="margin-top:14px;max-width:160mm">【用生活比喻解釋概念，讓非技術讀者秒懂】</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px">
+    <div class="card"><div class="tag">一句話比喻</div><p style="margin-top:12px;font-size:14px;color:var(--ink-soft);line-height:1.7">【比喻】</p></div>
+    <div class="card"><div class="tag">你不需要</div><p style="margin-top:12px;font-size:14px;color:var(--ink-soft);line-height:1.7">✗ 【門檻1】<br>✗ 【門檻2】<br><span style="color:var(--green);font-weight:700">✓ 【只要會的事】</span></p></div>
+  </div>
+  <!-- N 步驟總覽條：複製中間的 chip+箭頭做 3~5 步 -->
+  <div class="card tint" style="margin-top:20px">
+    <div class="chip">🎯 這本手冊帶你到哪裡</div>
+    <p style="margin-top:12px;font-size:14.5px;color:var(--ink);line-height:1.75">【終點一句話】。整條路拆成 <b style="color:var(--orange-deep)">N 個步驟</b>，每步都有圖。</p>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:stretch">
+      <div style="flex:1;min-width:33mm;text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 8px"><div class="serif" style="font-size:22px;color:var(--orange);font-weight:800">1</div><div style="font-size:12px;color:var(--ink-soft);margin-top:2px">【步驟一】</div></div>
+      <div style="display:flex;align-items:center;color:var(--line-strong);font-size:18px">›</div>
+      <div style="flex:1;min-width:33mm;text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 8px"><div class="serif" style="font-size:22px;color:var(--orange);font-weight:800">2</div><div style="font-size:12px;color:var(--ink-soft);margin-top:2px">【步驟二】</div></div>
+      <div style="display:flex;align-items:center;color:var(--line-strong);font-size:18px">›</div>
+      <div style="flex:1;min-width:33mm;text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 8px"><div class="serif" style="font-size:22px;color:var(--orange);font-weight:800">3</div><div style="font-size:12px;color:var(--ink-soft);margin-top:2px">【步驟三】</div></div>
+    </div>
+  </div>
+  <div class="pg-foot"><span>【手冊名】</span><span><b>02</b> · 這是什麼</span></div>
+</section>
+
+<!-- ========================= 3 · 事前準備（清單）========================= -->
+<section class="page">
+  <div class="kicker">開始前 · 先備齊這些</div>
+  <h2 class="title" style="margin-top:12px">動手之前，<span class="em">先確認這些</span></h2>
+  <p class="lead" style="margin-top:12px">【一句話：最容易卡的那項先講】</p>
+  <div style="display:flex;flex-direction:column;gap:14px;margin-top:22px">
+    <div class="card" style="display:flex;gap:18px;align-items:flex-start"><div style="font-size:30px">💻</div><div><div style="font-weight:800;font-size:15px">【準備項目一】</div><p style="font-size:13px;color:var(--ink-soft);margin-top:4px;line-height:1.65">【說明】</p></div></div>
+    <div class="card tint" style="display:flex;gap:18px;align-items:flex-start;border-width:1.5px"><div style="font-size:30px">🔑</div><div style="flex:1"><div style="font-weight:800;font-size:15px;color:var(--orange-deep)">【最重要那項】<span class="tag" style="background:var(--orange);margin-left:8px">最重要</span></div><p style="font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.65">【說明：為什麼重要、要先找誰確認】</p></div></div>
+  </div>
+  <div class="pg-foot"><span>【手冊名】</span><span><b>03</b> · 事前準備</span></div>
+</section>
+
+<!-- ========================= 4 · STEP 範本（含視窗示意圖）— 複製此頁做每個步驟 ========================= -->
+<section class="page">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="stepnum serif">1</div>
+    <div><div class="kicker">步驟一</div><h2 class="title" style="font-size:27px;margin-top:2px">【步驟標題】</h2></div>
+  </div>
+  <p class="lead" style="margin-top:14px">【這步要做什麼、為什麼】</p>
+  <div style="display:flex;gap:20px;margin-top:18px;align-items:center">
+    <div style="flex:1">
+      <ul class="clean">
+        <li>【動作 1】</li>
+        <li>【動作 2】</li>
+        <li>【動作 3】</li>
+      </ul>
+    </div>
+    <!-- 視窗示意 mock：可換成 App / 瀏覽器 / Finder / 終端機 -->
+    <div style="width:62mm;flex:0 0 auto">
+      <div class="win">
+        <div class="win-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">【視窗標題】</span></div>
+        <div style="background:var(--bg);padding:16px">
+          <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11px;color:var(--muted)">【畫面示意內容】</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:10.5px;color:var(--muted);margin-top:6px">【示意圖說】</div>
+    </div>
+  </div>
+  <!-- 需要時：終端機指令示意 -->
+  <div class="win" style="margin-top:16px">
+    <div class="win-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">終端機 Terminal</span></div>
+    <div class="term"><span class="p">你的名字@Mac ~ %</span> 【指令】
+<span class="c">✓ 完成</span> <span class="dim">…</span></div>
+  </div>
+  <div class="pg-foot"><span>【手冊名】</span><span><b>04</b> · 步驟一</span></div>
+</section>
+
+<!-- ========================= 5 · 好用話術 / 疑難排解 ========================= -->
+<section class="page">
+  <div class="kicker">用得更順 · 卡住怎麼辦</div>
+  <h2 class="title" style="margin-top:12px">最常見的 <span class="em">幾個卡關</span></h2>
+  <p class="lead" style="margin-top:12px">【求助原則：卡住就截圖傳給誰】</p>
+  <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px">
+    <div class="card" style="padding:15px 18px"><div style="font-weight:800;font-size:14px;color:var(--ink)">❓ 【問題一】</div><p style="font-size:12.5px;color:var(--ink-soft);margin-top:5px;line-height:1.6">【解法】</p></div>
+    <div class="card" style="padding:15px 18px"><div style="font-weight:800;font-size:14px;color:var(--ink)">❓ 【問題二】</div><p style="font-size:12.5px;color:var(--ink-soft);margin-top:5px;line-height:1.6">【解法】</p></div>
+  </div>
+  <div class="card tint" style="margin-top:18px;display:flex;gap:14px;align-items:center"><div style="font-size:26px">🆘</div><div><div style="font-weight:800;font-size:14px;color:var(--orange-deep)">黃金求助法則</div><p style="font-size:13px;color:var(--ink-soft);margin-top:3px;line-height:1.6">【截圖 + 一句「我卡在第 X 步」→ 傳給誰】</p></div></div>
+  <div class="pg-foot"><span>【手冊名】</span><span><b>05</b> · 疑難排解</span></div>
+</section>
+
+<!-- ========================= 6 · 中立結尾（無署名、無社群、無導流 CTA）========================= -->
+<section class="page" style="justify-content:center;text-align:center;align-items:center">
+  <div style="max-width:150mm">
+    <div class="chip" style="margin:0 auto">🎊 你辦到了</div>
+    <h2 style="font-size:38px;font-weight:800;line-height:1.2;margin-top:20px;color:var(--ink)">【鼓勵標題】<br><span style="color:var(--orange-deep)">【重點】</span></h2>
+    <p style="font-size:15px;color:var(--ink-soft);margin-top:18px;line-height:1.8">【一段鼓勵 + 下一步可以做什麼】</p>
+
+    <div class="card tint" style="margin:40px auto 0;max-width:110mm;text-align:left">
+      <div class="tag">下一步</div>
+      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;line-height:1.7">【完成後最建議做的第一件事，或最後檢查清單】</p>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:9mm;left:0;right:0;text-align:center;font-size:10.5px;color:var(--muted)">【手冊名】 · 內部教學使用</div>
+</section>
