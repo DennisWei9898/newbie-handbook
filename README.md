@@ -80,12 +80,12 @@ newbie-handbook/
         ├── SKILL.md                入口：定位、鐵律、工作流程
         ├── references/
         │   ├── grilling.md         前置提問三題、複述鎖定、跳過判準、追問樹
-        │   ├── writing-eli5-cba.md 結論先行、白話翻譯、生活化比喻、三輪自檢
+        │   ├── writing-eli5-cba.md 結論先行、白話翻譯、生活化比喻、三輪自檢、留白門檻
         │   ├── microsteps.md       微步驟粒度 14 條
-        │   ├── deai-teaching.md    去 AI 味禁用清單 24 條、假陽性白名單
-        │   └── real-screenshots.md 畫面來源四層優先序、Playwright 實拍、四條邊界
+        │   ├── deai-teaching.md    去 AI 味禁用清單 24 條、假陽性白名單、機器閘自測
+        │   └── real-screenshots.md 畫面來源四層優先序、Playwright 實拍、圖上標記、四條邊界
         └── assets/
-            ├── template.html       A4 六頁骨架與完整設計系統
+            ├── template.html       A4 六頁骨架、設計系統與步驟頁新元件
             └── render.mjs          HTML → A4 PDF ＋ 逐頁 QA 截圖
 ```
 

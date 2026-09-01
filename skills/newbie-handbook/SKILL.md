@@ -137,6 +137,8 @@ node render.mjs index.html "<主題> 手冊.pdf"
 - `.card`、`.warm`、`.tint`、`.chip`、`.tag`：卡片與標籤。
 - `.stepnum`：步驟圓標。
 - `.win`、`.win-bar`、`.term`：瀏覽器、App、Finder、終端機 mock。
+- `.shot`、`.mark`、`.cap`：真實截圖版位、圖上橘色記號、圖說（規則見 `references/real-screenshots.md`）。
+- `.ok`、`.exit`、`.fill`：成功畫面框、卡關出口框、內容撐版容器。
 - `.pg-foot`：中立頁尾，只放手冊名、章節或頁碼。
 
 ## 常見調整

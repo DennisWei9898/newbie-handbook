@@ -5,7 +5,7 @@
   │ newbie-handbook-neutral 模板（米白+橘 · A4 直式 · 圖文並茂）         │
   │ 用法：把每個 <section class="page"> 的內容換成你的主題。             │
   │  - 步驟頁：複製「STEP 範本」那一頁，改編號與內容即可。               │
-  │  - 圖示意：一律用下方「視窗 / 卡片」CSS 元件畫 mock，不要用假截圖。   │
+  │  - 畫面：有實拍圖就用 .shot＋.cap；沒有才用「視窗 / 卡片」畫 mock。   │
   │  - 封面／結尾：不放署名、社群帳號、QR code 或導流 CTA。             │
   │ 渲染：node assets/render.mjs <這個檔> "<輸出檔名>.pdf"               │
   └───────────────────────────────────────────────────────────────────┘
@@ -42,7 +42,7 @@
   .pg-foot b{color:var(--orange-deep);font-weight:700}
   h2.title{font-size:30px;line-height:1.18;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
   h2.title .em{color:var(--orange-deep)}
-  p.lead{font-size:15px;color:var(--ink-soft);line-height:1.75}
+  p.lead{font-size:17px;color:var(--ink-soft);line-height:1.75} /* 列印字級校準：A4 實測 17px */
   .chip{display:inline-flex;align-items:center;gap:6px;background:var(--orange-soft);color:var(--orange-deep);font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:.02em}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
   .card.warm{background:var(--bg-warm);border-color:var(--line-strong)}
@@ -59,10 +59,29 @@
   .term .p{color:#E0A46B}.term .c{color:#8FB98A}.term .dim{color:#9b917f}
   /* 步驟編號 */
   .stepnum{width:44px;height:44px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;flex:0 0 auto;box-shadow:0 4px 10px rgba(217,119,87,.4)}
-  ul.clean{list-style:none;display:flex;flex-direction:column;gap:9px}
-  ul.clean li{position:relative;padding-left:24px;font-size:13.5px;color:var(--ink-soft);line-height:1.6}
-  ul.clean li::before{content:"";position:absolute;left:4px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
+  /* 列印字級校準：步驟頁條列不小於 16px（A4 實測），比螢幕稿大一級才印得清楚 */
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:15px}
+  ul.clean li{position:relative;padding-left:28px;font-size:16px;color:var(--ink-soft);line-height:1.75}
+  ul.clean li::before{content:"";position:absolute;left:4px;top:10px;width:9px;height:9px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
   .divider{height:1px;background:var(--line);margin:16px 0}
+  /* 內容撐版：把頁面剩下的空間平均分掉（勿改用 margin-top:auto，那會在中段裂出空洞）*/
+  .fill{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;gap:12px;padding-bottom:4mm}
+  /* 真實截圖版位：包住 <img>，沒有視窗列，外框比 .win mock 細，一眼能分辨真圖與示意圖 */
+  .shot{position:relative;max-width:100%;border:1px solid var(--line-strong);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(60,40,20,.10)}
+  .shot img{display:block;width:100%;height:auto}
+  /* 圖上記號：疊在圖上，PNG 原檔不動；一張圖至多一個，圖說必附聲明句 */
+  .mark{position:absolute;border:3px solid var(--orange);border-radius:10px;box-shadow:0 0 0 3px rgba(217,119,87,.28)}
+  /* 圖說：真圖標「真實畫面・拍攝日期」，CSS mock 標「介面示意」 */
+  .cap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6}
+  .cap b{color:var(--orange-deep);font-weight:700}
+  /* 成功畫面框：這一步做對了會看到什麼 */
+  .ok{background:#EDF3EE;border:1px solid #CBDDD0;border-radius:12px;padding:16px 20px}
+  .ok b{color:var(--green);font-size:15px}
+  .ok p{font-size:14.5px;color:var(--ink-soft);line-height:1.7;margin-top:5px}
+  /* 卡關出口框：如果你看到的不是這樣 */
+  .exit{background:var(--bg-warm);border:1px solid var(--line-strong);border-left:5px solid var(--orange);border-radius:12px;padding:16px 20px}
+  .exit b{color:var(--orange-deep);font-size:15px}
+  .exit p{font-size:14.5px;color:var(--ink-soft);line-height:1.7;margin-top:5px}
 </style>
 
 <!-- ========================= 1 · 封面 ========================= -->
@@ -124,37 +143,50 @@
   <div class="pg-foot"><span>【手冊名】</span><span><b>03</b> · 事前準備</span></div>
 </section>
 
-<!-- ========================= 4 · STEP 範本（含視窗示意圖）— 複製此頁做每個步驟 ========================= -->
+<!-- ========================= 4 · STEP 範本（真實截圖／成功畫面／卡關出口／撐版）— 複製此頁做每個步驟 ========================= -->
 <section class="page">
   <div style="display:flex;align-items:center;gap:14px">
     <div class="stepnum serif">1</div>
     <div><div class="kicker">步驟一</div><h2 class="title" style="font-size:27px;margin-top:2px">【步驟標題】</h2></div>
   </div>
-  <p class="lead" style="margin-top:14px">【這步要做什麼、為什麼】</p>
-  <div style="display:flex;gap:20px;margin-top:18px;align-items:center">
-    <div style="flex:1">
-      <ul class="clean">
-        <li>【動作 1】</li>
-        <li>【動作 2】</li>
-        <li>【動作 3】</li>
-      </ul>
-    </div>
-    <!-- 視窗示意 mock：可換成 App / 瀏覽器 / Finder / 終端機 -->
-    <div style="width:62mm;flex:0 0 auto">
-      <div class="win">
-        <div class="win-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">【視窗標題】</span></div>
-        <div style="background:var(--bg);padding:16px">
-          <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11px;color:var(--muted)">【畫面示意內容】</div>
-        </div>
+  <!-- .fill 把剩下的空間平均分掉；內容偏少時不要改用 margin-top:auto，那會在中段裂出空洞 -->
+  <div class="fill">
+    <p class="lead">【這一步做完會得到什麼——結論先行】</p>
+    <div style="display:flex;gap:20px;align-items:flex-start">
+      <div style="flex:1">
+        <ul class="clean">
+          <li>【動作 1】</li>
+          <li>【動作 2】</li>
+          <li>【動作 3】</li>
+        </ul>
       </div>
-      <div style="text-align:center;font-size:10.5px;color:var(--muted);margin-top:6px">【示意圖說】</div>
+      <div style="width:68mm;flex:0 0 auto">
+        <!-- 有實拍圖或使用者真圖：把 src 換成 assets/step-01.png；桌機整頁寬的截圖要跨整頁排，塞進這個 68mm 欄會讀不到字 -->
+        <div class="shot">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='400'><rect width='640' height='400' fill='%23F3ECE0'/><rect x='14' y='14' width='612' height='372' fill='none' stroke='%23DBCFB9' stroke-width='2' stroke-dasharray='11 9'/></svg>" alt="【這張圖在講什麼】">
+          <!-- .mark：一張圖至多一個記號，位置用百分比 -->
+          <div class="mark" style="left:11%;top:26%;width:30%;height:17%"></div>
+        </div>
+        <div class="cap"><b>真實畫面</b>　【YYYY 年 M 月 D 日】拍攝。【畫面上要看哪裡】<b>橘色記號是本手冊加上去的，畫面上沒有。</b></div>
+      </div>
     </div>
-  </div>
-  <!-- 需要時：終端機指令示意 -->
-  <div class="win" style="margin-top:16px">
-    <div class="win-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">終端機 Terminal</span></div>
-    <div class="term"><span class="p">你的名字@Mac ~ %</span> 【指令】
+    <div class="ok">
+      <b>做對了會看到</b>
+      <p>【畫面會變成什麼樣子——讀者拿這個訊號確認自己沒做錯】</p>
+    </div>
+    <div class="exit">
+      <b>如果你看到的不是這樣</b>
+      <p>【最常見的那一種歪掉長什麼樣，以及怎麼退回來重做】</p>
+    </div>
+    <!-- 需要時：終端機指令示意（.win 殼也可換成 App / 瀏覽器 / Finder 的畫面示意） -->
+    <div>
+      <div class="win">
+        <div class="win-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">終端機 Terminal</span></div>
+        <div class="term"><span class="p">你的名字@Mac ~ %</span> 【指令】
 <span class="c">✓ 完成</span> <span class="dim">…</span></div>
+      </div>
+      <div class="cap">介面示意　【這張示意圖在示範什麼】</div>
+    </div>
   </div>
   <div class="pg-foot"><span>【手冊名】</span><span><b>04</b> · 步驟一</span></div>
 </section>

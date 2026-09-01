@@ -39,20 +39,37 @@
 
 ```js
 import { chromium } from 'playwright';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+const here = dirname(fileURLToPath(import.meta.url));
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
 await page.goto('https://example.com/pricing', { waitUntil: 'networkidle' });
-await page.screenshot({ path: 'assets/step-03.png' });
+await page.screenshot({ path: join(here, 'assets/step-03.png') });
 await browser.close();
 ```
 
-要拍某一區塊而不是整頁，把最後的 `page.screenshot` 換成 `await page.locator('.pricing-table').screenshot({ path: 'assets/step-03.png' })`。要整頁長截圖就加 `fullPage: true`——但長截圖在 A4 版面上會縮到看不清楚，通常拍局部比較好用。
+**中文路徑護欄：腳本要解析自己所在的資料夾，一律用 `fileURLToPath(import.meta.url)`，不要用 `new URL(import.meta.url).pathname`。** 路徑裡只要有一個中文字，`pathname` 回傳的就是 percent-encode 過的字串，`path.resolve` 會安安靜靜生出一個名字亂碼的新資料夾，圖全部寫進去，腳本還是 exit 0，你會以為它沒跑。中文資料夾名稱在中文使用者的專案裡是常態，這顆雷實際踩過一次。
+
+要拍某一區塊而不是整頁，把最後的 `page.screenshot` 換成 `await page.locator('.pricing-table').screenshot({ path: join(here, 'assets/step-03.png') })`。要整頁長截圖就加 `fullPage: true`——但長截圖在 A4 版面上會縮到看不清楚，通常拍局部比較好用。
+
+**拍完先確認它在 A4 上讀得到字。** 桌機視窗尺寸拍出來的圖又寬又扁（1280×800 起跳），塞進步驟頁那個 68mm 的側邊欄會縮到只剩約 19mm 高，介面文字整片糊掉——實測過，同一張圖在側欄讀不到、跨整頁排（約 174mm 寬）就清楚。判準：**截圖裡最小的介面文字，在成品 PDF 上量起來要有 1.5mm 高**（約 4.5pt）。量不到就兩條路——跨整頁排，或者裁掉周邊只留要看的那一塊再放大。
 
 ## 介面文字以實拍畫面上的字樣為準
 
 手上有實拍或使用者提供的真圖時，手冊裡寫的按鈕、分頁、欄位名稱，一律照**實拍畫面上真的印出來的那幾個字**；官方文件退一步，只用來確認版本與流程。官方說明頁裡的截圖常常比線上介面舊，照它抄會寫出讀者在自己畫面上找不到的按鈕名。
 
 **程式碼層的標籤不是畫面文字。** `aria-label`、`alt`、`title` 這些是給輔助工具讀的，讀者盯著螢幕看不到它們，**不得當成介面字樣寫進手冊**。畫面上那顆按鈕如果只有圖示、沒有文字，就用形狀加位置去描述（「右邊那格的左下角，有一個喇叭形狀的小按鈕」），不要拿無障礙標籤充當它的名字——讀者會照著那幾個字在畫面上找，然後找不到。
+
+## 圖上加標記：後加、一張一個、圖說要聲明
+
+實拍圖上有十幾個圖示，只用文字寫「右邊那格的左下角有一個喇叭」，讀者要掃很久。可以在圖上加記號，但照這三條走：
+
+1. **記號一律用模板的 `.mark` 後加在圖上，不改 PNG 原檔。** `.mark` 是絕對定位的橘色框，疊在 `.shot` 容器裡的 `<img>` 上面。截圖檔案本身維持拍下來的原樣——「這是真截圖、沒有修過」這句話才站得住。用圖片編輯器把箭頭燒進 PNG，這句話就守不住了。
+2. **一張圖至多標一個重點。** 兩個以上的圈，讀者不知道要先看哪一個，等於沒標。同一張圖要指兩個地方，就拆成兩步兩張圖，或者第二個地方改用文字描述。
+3. **圖說必附這句聲明：橘色記號是本手冊加上去的，畫面上沒有。** 少了它，讀者會以為自己的螢幕上也該有一個橘色框，然後找不到。
+
+座標用 Playwright 印出目標元素的 `getBoundingClientRect()` 換算成百分比，不要目測。裁切框一改，`.mark` 的百分比全部要重算，所以先把裁切定下來再標記號。
 
 ## 四條邊界
 
