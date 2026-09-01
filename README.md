@@ -17,6 +17,8 @@
 
 成品是米白＋橘色調的 A4 直式 PDF，每個步驟配一張真實截圖或介面示意圖，經 Playwright 渲染並逐頁視覺校稿。成品保持中立：不放署名、社群帳號、QR code、網址或行銷導流。
 
+步驟圖的來源照四層優先序挑：使用者提供真圖 > Playwright 實拍公開網頁 > 官方文件圖（標註出處）> CSS 介面示意（誠實標示）。教的是網頁工具、那個頁面又不用登入就看得到的時候，它會用你為了輸出 PDF 本來就裝好的 Playwright 直接把畫面拍下來當步驟圖，不必只能畫示意。登入牆後面的頁面它不會代你登入去拍，手機 App 的原生畫面也拍不到，這兩種情況退回你自己提供的截圖或介面示意，並且照實標示是哪一種。
+
 ## 安裝
 
 需要 Claude Code（或任何支援 Agent Skills 的執行環境）。先取得這個 repo：
@@ -80,7 +82,8 @@ newbie-handbook/
         │   ├── grilling.md         前置提問三題、複述鎖定、跳過判準、追問樹
         │   ├── writing-eli5-cba.md 結論先行、白話翻譯、生活化比喻、三輪自檢
         │   ├── microsteps.md       微步驟粒度 14 條
-        │   └── deai-teaching.md    去 AI 味禁用清單 24 條、假陽性白名單
+        │   ├── deai-teaching.md    去 AI 味禁用清單 24 條、假陽性白名單
+        │   └── real-screenshots.md 畫面來源四層優先序、Playwright 實拍、四條邊界
         └── assets/
             ├── template.html       A4 六頁骨架與完整設計系統
             └── render.mjs          HTML → A4 PDF ＋ 逐頁 QA 截圖
