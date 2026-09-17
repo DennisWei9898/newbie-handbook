@@ -24,8 +24,52 @@ try {
 }
 if (!chromium) { console.error('無法載入 playwright，請先安裝：npm i -g playwright && npx playwright install chromium'); process.exit(1); }
 
+// 開瀏覽器：先用 Playwright 自帶的；自帶的執行檔不在（常見於 Playwright 更新後版本對不上），改用電腦上已裝好的 Google Chrome。
+// 兩個都開不起來，就印一段白話說明、exit 1，不把英文錯誤堆疊直接丟給使用者。
+const firstLine = (e) => String(e?.message ?? e).split('\n').map((s) => s.trim()).find(Boolean) || '沒有錯誤訊息';
+const isMissingBrowser = (e) => /Executable doesn't exist/i.test(String(e?.message ?? e));
+
+function explainAndExit(lines, helpLine) {
+  console.error(['', ...lines, '', '找人幫忙時，把下面這一行整行複製給對方：', `  ${helpLine}`, ''].join('\n'));
+  process.exit(1);
+}
+
+let browser;
+try {
+  browser = await chromium.launch();
+} catch (e1) {
+  if (!isMissingBrowser(e1)) {
+    explainAndExit([
+      '✗ PDF 沒有產出來：瀏覽器打不開。',
+      '',
+      '發生什麼事：產 PDF 要在背景開一個瀏覽器，把手冊網頁印成 PDF。這次卡在瀏覽器啟動，原因不是瀏覽器沒裝。',
+      '手冊的內容沒有壞，HTML 原稿還在，只差最後印成 PDF 這一步。',
+      '',
+      '你可以怎麼做：',
+      '  1. 原封不動再跑一次同一行指令。',
+      '  2. 重跑還是出現這段說明，就找人幫忙。',
+    ], `[render.mjs] 瀏覽器啟動失敗：${firstLine(e1)}`);
+  }
+  try {
+    browser = await chromium.launch({ channel: 'chrome' });
+    console.log('ℹ 找不到 Playwright 自帶的瀏覽器，這次改用電腦上的 Google Chrome 產 PDF。');
+  } catch (e2) {
+    explainAndExit([
+      '✗ PDF 沒有產出來：這台電腦上找不到能用的瀏覽器。',
+      '',
+      '發生什麼事：產 PDF 要在背景開一個瀏覽器，把手冊網頁印成 PDF。',
+      'Playwright 自帶的瀏覽器不在這台電腦上（Playwright 更新過之後常見），改用電腦上的 Google Chrome 也沒開成功。',
+      '手冊的內容沒有壞，HTML 原稿還在，只差最後印成 PDF 這一步。',
+      '',
+      '你可以怎麼做（擇一）：',
+      '  1. 電腦上沒有 Google Chrome 的話，先安裝 Google Chrome，裝好後再跑一次同一行指令。',
+      '  2. 請會用終端機的人跑下面這一行，把 Playwright 自帶的瀏覽器下載回來，跑完再產一次 PDF：',
+      '       npx playwright install chromium',
+    ], `[render.mjs] 自帶瀏覽器：${firstLine(e1)} ｜ 改用 Chrome：${firstLine(e2)}`);
+  }
+}
+
 const outDir = path.dirname(path.resolve(output));
-const browser = await chromium.launch();
 const page = await browser.newPage({ deviceScaleFactor: 2 });
 await page.goto(pathToFileURL(inPath).href, { waitUntil: 'networkidle' });
 

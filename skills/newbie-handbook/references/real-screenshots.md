@@ -30,28 +30,49 @@
 
 前提：教學對象是網頁工具，而且目標頁面公開、不用登入。四件事要做對。
 
-1. **用同一套 Playwright。** 就是 `assets/render.mjs` 解析的那一套（本地或 global）。沒裝過就提示使用者 `npm i -g playwright && npx playwright install chromium`，不要偷偷改用別的截圖方式。
+1. **用同一套 Playwright。** 就是 `assets/render.mjs` 解析的那一套（本地或 global）。沒裝過就提示使用者 `npm i -g playwright && npx playwright install chromium`，不要偷偷改用別的截圖方式。Playwright 有裝、但它自帶的瀏覽器不在（Playwright 更新過之後常見），腳本會改用電腦上的 Google Chrome，不用先下載任何東西。
 2. **視窗尺寸調成讀者實際會用的那個。** 教電腦版流程用桌機尺寸（`1280×800` 起跳）；教手機版網頁流程就開 mobile viewport（例如 `390×844`），讓拍出來的畫面跟讀者手上的長得一樣。尺寸選錯，讀者會在畫面上找不到你說的那顆按鈕，因為 RWD 把它收進漢堡選單了。
 3. **一張圖只拍一個狀態。** 這是微步驟第 12 條的延伸：不要在同一張圖裡同時拍「按之前」和「按之後」。要對照前後就拍兩張，各自標好。
 4. **檔案放專案 `assets/`，用步驟編號命名。** `assets/step-03.png`、`assets/step-03-after.png`。命名跟步驟編號綁死，改版換圖才找得到是哪一張。
 
-最小腳本長這樣，改三個地方就能用（網址、視窗尺寸、輸出檔名）：
+最小腳本長這樣，改三個地方就能用（網址、視窗尺寸、輸出檔名）。前半段「找 Playwright、開瀏覽器」跟 `assets/render.mjs` 是同一套做法，不要刪：只寫 `import { chromium } from 'playwright'`，Playwright 裝在全域時會找不到；全域那份用 ESM 匯入，`chromium` 放在 `mod.default` 底下。
 
 ```js
-import { chromium } from 'playwright';
-import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
-const browser = await chromium.launch();
+
+// 找 Playwright：先本地，再全域；全域那份用 ESM 匯入時，chromium 在 mod.default 底下
+let chromium;
+try {
+  ({ chromium } = await import('playwright'));
+} catch {
+  const groot = execSync('npm root -g').toString().trim();
+  const mod = await import(pathToFileURL(join(groot, 'playwright', 'index.js')).href);
+  chromium = mod.chromium ?? mod.default?.chromium;
+}
+
+// 開瀏覽器：自帶的執行檔不在，就改用電腦上的 Google Chrome（跟 render.mjs 同一套判斷）
+let browser;
+try {
+  browser = await chromium.launch();
+} catch (e) {
+  if (!/Executable doesn't exist/i.test(String(e?.message ?? e))) throw e;
+  browser = await chromium.launch({ channel: 'chrome' });
+}
+
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
 await page.goto('https://example.com/pricing', { waitUntil: 'networkidle' });
 await page.screenshot({ path: join(here, 'assets/step-03.png') });
 await browser.close();
 ```
 
+兩個瀏覽器都開不起來時，這支腳本會直接丟出錯誤；原因跟 `render.mjs` 印出的白話說明是同一件事，照那段說明處理。
+
 **中文路徑護欄：腳本要解析自己所在的資料夾，一律用 `fileURLToPath(import.meta.url)`，不要用 `new URL(import.meta.url).pathname`。** 路徑裡只要有一個中文字，`pathname` 回傳的就是 percent-encode 過的字串，`path.resolve` 會安安靜靜生出一個名字亂碼的新資料夾，圖全部寫進去，腳本還是 exit 0，你會以為它沒跑。中文資料夾名稱在中文使用者的專案裡是常態，這顆雷實際踩過一次。
 
-要拍某一區塊而不是整頁，把最後的 `page.screenshot` 換成 `await page.locator('.pricing-table').screenshot({ path: join(here, 'assets/step-03.png') })`。要整頁長截圖就加 `fullPage: true`——但長截圖在 A4 版面上會縮到看不清楚，通常拍局部比較好用。
+要拍某一區塊而不是整頁，把 `page.screenshot` 那一行換成 `await page.locator('.pricing-table').screenshot({ path: join(here, 'assets/step-03.png') })`。要整頁長截圖就加 `fullPage: true`——但長截圖在 A4 版面上會縮到看不清楚，通常拍局部比較好用。
 
 **拍完先確認它在 A4 上讀得到字。** 桌機視窗尺寸拍出來的圖又寬又扁（1280×800 起跳），塞進步驟頁那個 68mm 的側邊欄會縮到只剩約 19mm 高，介面文字整片糊掉——實測過，同一張圖在側欄讀不到、跨整頁排（約 174mm 寬）就清楚。判準：**截圖裡最小的介面文字，在成品 PDF 上量起來要有 1.5mm 高**（約 4.5pt）。量不到就兩條路——跨整頁排，或者裁掉周邊只留要看的那一塊再放大。
 
@@ -60,6 +81,28 @@ await browser.close();
 手上有實拍或使用者提供的真圖時，手冊裡寫的按鈕、分頁、欄位名稱，一律照**實拍畫面上真的印出來的那幾個字**；官方文件退一步，只用來確認版本與流程。官方說明頁裡的截圖常常比線上介面舊，照它抄會寫出讀者在自己畫面上找不到的按鈕名。
 
 **程式碼層的標籤不是畫面文字。** `aria-label`、`alt`、`title` 這些是給輔助工具讀的，讀者盯著螢幕看不到它們，**不得當成介面字樣寫進手冊**。畫面上那顆按鈕如果只有圖示、沒有文字，就用形狀加位置去描述（「右邊那格的左下角，有一個喇叭形狀的小按鈕」），不要拿無障礙標籤充當它的名字——讀者會照著那幾個字在畫面上找，然後找不到。
+
+## 沒有實拍畫面時：介面字樣先找官方繁中頁
+
+讀者的帳號多半是繁體中文介面，畫面上的按鈕印的是中文。照英文說明頁抄按鈕名，讀者會在自己的畫面上找不到那幾個字。沒有實拍或真圖可以對照時，照這三步查：
+
+1. **先找官方繁中說明頁。** 官方說明頁的網址後面加語言參數（Google 系列是 `hl=zh-Hant`）就會切到繁中版。同一個後台的說明常常分散在不同產品的說明中心：這一頁沒有繁中版，不代表別頁也沒有，換一個產品的說明中心再找一次。
+2. **手冊寫法中英並列，中文在前。** 例如「開始使用（英文介面：GET STARTED）」。讀者不管開的是哪一種語言介面，都找得到那顆按鈕。
+3. **查不到中文來源，就照實標出來，並補一個卡關出口。** 字樣後面標「中文介面字樣待確認」；同一步的卡關出口要寫：畫面上找不到這幾個字時，看哪個位置、靠什麼特徵認出它（例如「表單最下面、唯一有底色的那顆按鈕」）。不要自己翻一個中文按鈕名填上去，猜出來的字樣比英文原文更容易讓讀者找錯。
+
+有實拍畫面時照上一節，以實拍為準；這三步只管沒有畫面可以對照的情況。
+
+**實例（2026 年 9 月新手實測）**：一份教「在 Google Cloud 建立登入用戶端」的手冊，照 Google Cloud 的英文說明頁寫按鈕名，做手冊的人也加了繁中參數去查，但那幾頁沒有繁中版。中文字樣其實在另一個產品的說明中心：Google Workspace 遷移工具的繁中說明頁（`https://support.google.com/workspacemigrate/answer/9222992?hl=zh-Hant`，2026-09-17 開頁核對）。兩邊對起來是這樣：
+
+| 英文介面 | 中文介面 | 手冊寫法 |
+|---|---|---|
+| GET STARTED | 開始使用 | 開始使用（英文介面：GET STARTED） |
+| CREATE CLIENT | 建立用戶端 | 建立用戶端（英文介面：CREATE CLIENT） |
+| Web application | 網頁應用程式 | 網頁應用程式（英文介面：Web application） |
+| Authorized JavaScript origins | 已授權的 JavaScript 來源 | 已授權的 JavaScript 來源（英文介面：Authorized JavaScript origins） |
+| NEXT | 下一步 | 下一步（英文介面：NEXT） |
+
+手冊原本只寫了英文那一欄。讀者照著找「GET STARTED」，畫面上印的是「開始使用」，就停在那裡了。
 
 ## 圖上加標記：後加、一張一個、圖說要聲明
 
@@ -81,6 +124,21 @@ await browser.close();
 2. 經使用者**明確同意**後，讀他自己已經登入、已經開著的瀏覽器畫面。
 
 這兩條的界線是「AI 代替使用者登入」與「使用者自己登入、AI 讀畫面」的差別。後者在使用者同意下是正常主路，不要因為看起來像風險就把它縮成角落註解——那正是「主次顛倒」那條常見錯誤在講的事。
+
+#### 使用者也沒走過這條路：兩階段出手冊
+
+後台在登入牆後面，使用者自己也沒做過、拿不出截圖時，前三層畫面都拿不到，只能先畫示意。這時候不要把示意版當正式成品交出去，分兩階段：
+
+1. **第一版是草稿版。** 畫面用 CSS 示意，封面標題旁或每頁頁尾標「草稿版」。介面字樣照「沒有實拍畫面時」那一節查，查不到的標「中文介面字樣待確認」。
+2. **交付草稿版時，附一份「照做時要截哪幾張圖」清單**，請使用者拿真帳號照手冊做一遍，邊做邊截圖傳回來。清單逐步列三件事：第幾步、什麼時候截（按下去之前還是之後）、畫面要拍到哪一塊。例如「步驟 7：按『建立用戶端』之前，截整張表單」。清單第一行先提醒：畫面上出現密鑰（例如 Client secret）或個人資料時，先塗掉再傳。
+3. **第二版換真圖，改標正式版。** 收到真圖後逐步換掉示意圖，並照真圖修正文字：按鈕名、欄位順序、位置描述、成功畫面，一律以真圖為準；草稿版標的「待確認」逐條清掉。每一步都換成真圖、字樣也對過，才拿掉「草稿版」改標正式版。還有步驟沒換到，就維持草稿版。
+
+只讀手冊的人檢查不出「示意圖跟真畫面對不上」，一定要有人拿真帳號照做過，這本手冊才算驗過。
+
+#### 使用者同意讓 AI 看他已登入的瀏覽器時
+
+1. **AI 只截圖，不代點。** 會改動帳號設定的動作（建立、儲存、刪除、發布、切換狀態、同意條款）一律由使用者自己按。AI 在每一步做完之後截圖；要換到下一個畫面，請使用者自己點過去。
+2. **截圖之前先遮蔽密鑰與個資。** 畫面上有密鑰（例如 Client secret、API 金鑰）、電子郵件、真實姓名、帳單資訊時，先請使用者把那個視窗關掉或捲開，確認畫面上看不到再拍；用 Playwright 拍的話，可以用 `page.screenshot` 的 `mask` 參數把那一塊蓋掉。密鑰一旦拍進檔案，事後在手冊裡遮罩也只遮住手冊，原始圖檔裡還是有，所以要在拍之前處理。入稿前再照邊界 4 檢查一次。
 
 ### 邊界 2：手機 App 的原生畫面，Playwright 拍不到
 
