@@ -20,9 +20,9 @@ metadata:
 |---|---|
 | `references/grilling.md` | 動筆前的前置提問三題、複述鎖定、跳過判準、追問樹、非互動環境 fallback、外部條件檢查 |
 | `references/writing-eli5-cba.md` | 結論先行（手冊層＋步驟頁層）、專有名詞白話翻譯、生活化比喻判準、規則疊加順序、三輪自檢（含真實截圖元素對照） |
-| `references/microsteps.md` | 微步驟粒度 14 條：一步一動作、成功畫面、卡關出口、checkpoint、分組門檻、附註層數 |
+| `references/microsteps.md` | 微步驟粒度 14 條：一步一動作（含一步怎麼算）、成功畫面、卡關出口（含找人求助時的寫法）、checkpoint、分組門檻、附註層數 |
 | `references/deai-teaching.md` | 教學情境去 AI 味禁用清單 24 條（含正反例）、朗讀測試、假陽性白名單 |
-| `references/real-screenshots.md` | 畫面來源四層優先序、Playwright 實拍公開網頁的做法與最小腳本、繁中介面字樣查核、登入牆／原生 App／版權／個資遮罩四條邊界（含登入牆兩階段：草稿版→正式版） |
+| `references/real-screenshots.md` | 畫面來源四層優先序、Playwright 實拍公開網頁的做法與最小腳本、繁中介面字樣查核（含機器翻譯頁判斷、逐字搜尋方法）、登入牆／原生 App／版權／個資遮罩四條邊界（含登入牆兩階段：草稿版→正式版） |
 
 **路徑解析規則**：只解析相對於本 skill 資料夾的 `references/`。找不到這些檔案時停下來提示使用者確認資料夾有沒有完整複製，不要用檔名做全域搜尋當退路，也不要憑記憶把規則補完。
 
